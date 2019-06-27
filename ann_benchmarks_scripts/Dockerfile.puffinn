@@ -1,0 +1,7 @@
+FROM ann-benchmarks
+
+RUN apt-get update && apt-get install -y cmake libboost-all-dev libeigen3-dev libgsl0-dev
+RUN git clone https://github.com/puffinn/puffinn
+RUN cd puffinn && python3 setup.py build && sudo python3 setup.py install
+
+ENTRYPOINT ["python3", "run_algorithm.py"]

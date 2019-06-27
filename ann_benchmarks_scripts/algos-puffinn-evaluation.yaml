@@ -1,0 +1,85 @@
+float:
+  angular:
+    puffinn-python:
+      docker-tag: ann-benchmarks-puffinn
+      module: ann_benchmarks.algorithms.puffinn
+      constructor: Puffinn
+      base-args: ["@metric"]
+      run-groups:
+        base:
+            # runs experiment for a large set of index sizes, hash functions and evaluation strategies.
+            args: [
+              [594967296, 1294967296,2294967296,4294967296, 8594967296, 16000000000, 32000000000],
+              ['fht_crosspolytope', 'simhash', 'crosspolytope'],
+              ['independent', 'pool','tensor'],
+            ]
+            query-args: [[0.1, 0.2, 0.5, 0.7, 0.9, 0.95, 0.97], ['filter', 'simple'], [1.0, 1.1]]
+    falconn:
+        docker-tag: ann-benchmarks-falconn
+        module: ann_benchmarks.algorithms.falconn
+        constructor: FALCONN
+        base-args: ["@metric"]
+        run-groups:
+            base:
+                k: &k [16, 18]
+                L: &l [1,  5, 10, 19, 21, 51, 104, 207, 408, 599, 659, 725,  878, 1063, 1170, 1287, 1416]
+                args: [*k, *l]
+    faiss-ivf:
+      docker-tag: ann-benchmarks-faiss
+      module: ann_benchmarks.algorithms.faiss
+      constructor: FaissIVF
+      base-args: ["@metric"]
+      run-groups:
+        base:
+          args: [[1024,2048,4096,8192]]
+          query-args: [[1, 5, 10, 100, 200]]
+
+    annoy:
+      docker-tag: ann-benchmarks-annoy
+      module: ann_benchmarks.algorithms.annoy
+      constructor: Annoy
+      base-args: ["@metric"]
+      run-groups:
+        annoy:
+          args: [[100, 200, 400]]
+          query-args: [[100, 200, 400, 1000, 2000, 4000, 10000, 20000, 40000,
+                      100000, 200000, 400000]]
+          # This run group produces 3 algorithm instances -- Annoy("angular",
+          # 100), Annoy("angular", 200), and Annoy("angular", 400) -- each of
+          # which will be used to run 12 different queries.
+    bruteforce-blas:
+      docker-tag: ann-benchmarks-sklearn
+      module: ann_benchmarks.algorithms.bruteforce
+      constructor: BruteForceBLAS
+      base-args: ["@metric"]
+      run-groups:
+        empty:
+          args: []
+    BallTree(nmslib):
+      docker-tag: ann-benchmarks-nmslib
+      module: ann_benchmarks.algorithms.nmslib
+      constructor: NmslibReuseIndex
+      base-args: ["@metric", "vptree"]
+      run-groups:
+        base:
+          # When @args is a dictionary, algorithm instances will be generated
+          # by taking the Cartesian product of all of its values.
+          arg-groups:
+                - {"tuneK": 10, "desiredRecall": [0.99, 0.97, 0.95, 0.9, 0.85, 0.8,
+                    0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}
+                - False
+          # This run group produces thirteen algorithm instances:
+          # NmslibNewIndex("angular", "vptree", {"tuneK": 10,
+          # "desiredRecall": 0.99}), NmslibNewIndex("angular", "vptree",
+          # {"tuneK": 10, "desiredRecall": 0.97}), and so on up to
+          # NmslibNewIndex("angular", "vptree", {"tuneK": 10, "desiredRecall":
+          # 0.1}).
+    NGT-onng:
+      docker-tag: ann-benchmarks-ngt
+      module: ann_benchmarks.algorithms.onng_ngt
+      constructor : ONNG
+      base-args : ["@metric", "Float"]
+      run-groups :
+        onng:
+           args : [{'edge': 100, 'outdegree': 10, 'indegree': 120}]
+           query-args : [[0.6, 0.8, 0.9, 1.0, 1.02, 1.05, 1.1, 1.2]]
